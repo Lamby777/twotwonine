@@ -43,7 +43,8 @@ fn encode(data: &str) -> String {
     rgbs.iter()
         .map(|rgb| Hsv::from(*rgb))
         .map(|hsv| format!("{:.1} {:.1} {:.1}", hsv.h, (hsv.s * 100.0), (hsv.v * 100.0)))
-        .collect()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn decode(data: &str) -> String {
@@ -96,5 +97,16 @@ mod tests {
     #[test]
     fn decode_2288_132_475() {
         assert_eq!(decode("228.8 13.2 47.5"), "ily")
+    }
+
+    #[test]
+    fn two_way_crypto_len_not_multiple_of_3() {
+        let data = "i miss you <3";
+        let encoded = encode(data);
+        let decoded = decode(&encoded);
+
+        // it will have spaces padded at the end, but should still
+        // be the same string otherwise
+        assert_eq!(data, decoded.trim_end());
     }
 }
