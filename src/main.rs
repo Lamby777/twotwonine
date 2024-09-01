@@ -4,11 +4,17 @@ use color_space::{Hsv, Rgb};
 const PADDING_CHAR: char = ' ';
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(version, about)]
 struct Args {
+    /// Decode the input data? If not set, the input data will be encoded
     #[arg(short, long)]
     decode: bool,
 
+    /// Rather than printing encoded floats, print the actual colors
+    #[arg(short, long)]
+    color_preview: bool,
+
+    /// Data to encode/decode
     data: String,
 }
 
@@ -23,11 +29,27 @@ fn main() {
 
         false => {
             eprintln!("Encoding...");
-            encode(&args.data)
+            let encoded = encode(&args.data);
+            if !args.color_preview {
+                encoded
+            } else {
+                hsv2rgbpreview(&encoded)
+            }
         }
     };
 
     println!("{}", res);
+}
+
+fn hsv2rgbpreview(data: &str) -> String {
+    data.split_whitespace()
+        .map(|s| s.parse::<f64>().unwrap())
+        .collect::<Vec<_>>()
+        .chunks(3)
+        .map(|chunk| Hsv::new(chunk[0], chunk[1] / 100.0, chunk[2] / 100.0))
+        .map(|hsv| Rgb::from(hsv))
+        .map(|rgb| format!("\x1b[48;2;{:.0};{:.0};{:.0}m  ", rgb.r, rgb.g, rgb.b))
+        .collect()
 }
 
 fn encode(data: &str) -> String {
