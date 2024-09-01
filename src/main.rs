@@ -87,12 +87,12 @@ mod tests {
     }
 
     #[test]
-    fn decode_229_18_35() {
-        assert_eq!(decode("229 18 35"), "ILY")
+    fn decode_2288_180_349() {
+        assert_eq!(decode("228.8 18.0 34.9"), "ILY")
     }
 
     #[test]
-    fn decode_229_13_47() {
-        assert_eq!(decode("229 13 47"), "ily")
+    fn decode_2288_132_475() {
+        assert_eq!(decode("228.8 13.2 47.5"), "ily")
     }
 }
