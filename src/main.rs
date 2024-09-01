@@ -1,5 +1,5 @@
 use clap::Parser;
-use colors_transform::{Color, Rgb};
+use color_space::{Hsv, Rgb};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -26,10 +26,6 @@ fn main() {
     }
 }
 
-fn tuple3_to_str(tuple: (f32, f32, f32)) -> String {
-    format!("{} {} {}", tuple.0, tuple.1, tuple.2)
-}
-
 fn encode(data: &str) -> String {
     let ascii = data.chars().map(|c| c as u8).collect::<Vec<_>>();
     let rgbs = ascii
@@ -38,25 +34,72 @@ fn encode(data: &str) -> String {
             let r = chunk.get(0).unwrap_or(&32);
             let g = chunk.get(1).unwrap_or(&32);
             let b = chunk.get(2).unwrap_or(&32);
-            Rgb::from(*r as f32, *g as f32, *b as f32)
+            Rgb::new(*r as f64, *g as f64, *b as f64)
         })
         .collect::<Vec<_>>();
 
     rgbs.iter()
-        .map(|rgb| tuple3_to_str(rgb.to_hsl().as_tuple()))
+        .map(|rgb| Hsv::from(*rgb))
+        .map(|hsv| {
+            format!(
+                "{} {} {}",
+                hsv.h.round(),
+                (hsv.s * 100.0).round(),
+                (hsv.v * 100.0).round()
+            )
+        })
         .collect()
 }
 
 fn decode(data: &str) -> String {
-    todo!()
+    let hsvs = data
+        .split_whitespace()
+        .map(|s| s.parse::<f64>().unwrap())
+        .collect::<Vec<_>>();
+
+    let rgbs = hsvs
+        .chunks(3)
+        .map(|chunk| Hsv::new(chunk[0], chunk[1] / 100.0, chunk[2] / 100.0))
+        .map(|hsv| Rgb::from(hsv))
+        .collect::<Vec<_>>();
+
+    let ascii = rgbs
+        .iter()
+        .map(|rgb| {
+            vec![
+                rgb.r.round() as u8,
+                rgb.g.round() as u8,
+                rgb.b.round() as u8,
+            ]
+        })
+        .flatten()
+        .collect::<Vec<_>>();
+
+    ascii.iter().map(|&c| c as char).collect()
 }
 
 #[cfg(test)]
+#[allow(non_snake_case)]
 mod tests {
     use super::*;
 
     #[test]
-    fn encode_ily() {
+    fn encode_ILY() {
         assert_eq!(encode("ILY"), "229 18 35")
+    }
+
+    #[test]
+    fn encode_ily() {
+        assert_eq!(encode("ily"), "229 13 47")
+    }
+
+    #[test]
+    fn decode_229_18_35() {
+        assert_eq!(decode("229 18 35"), "ILY")
+    }
+
+    #[test]
+    fn decode_229_13_47() {
+        assert_eq!(decode("229 13 47"), "ily")
     }
 }
