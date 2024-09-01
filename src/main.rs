@@ -40,14 +40,7 @@ fn encode(data: &str) -> String {
 
     rgbs.iter()
         .map(|rgb| Hsv::from(*rgb))
-        .map(|hsv| {
-            format!(
-                "{} {} {}",
-                hsv.h.round(),
-                (hsv.s * 100.0).round(),
-                (hsv.v * 100.0).round()
-            )
-        })
+        .map(|hsv| format!("{:.1} {:.1} {:.1}", hsv.h, (hsv.s * 100.0), (hsv.v * 100.0)))
         .collect()
 }
 
@@ -85,12 +78,12 @@ mod tests {
 
     #[test]
     fn encode_ILY() {
-        assert_eq!(encode("ILY"), "229 18 35")
+        assert_eq!(encode("ILY"), "228.8 18.0 34.9")
     }
 
     #[test]
     fn encode_ily() {
-        assert_eq!(encode("ily"), "229 13 47")
+        assert_eq!(encode("ily"), "228.8 13.2 47.5")
     }
 
     #[test]
