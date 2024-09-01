@@ -13,17 +13,19 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    match args.decode {
+    let res = match args.decode {
         true => {
             eprintln!("Decoding...");
-            decode(&args.data);
+            decode(&args.data)
         }
 
         false => {
             eprintln!("Encoding...");
-            encode(&args.data);
+            encode(&args.data)
         }
-    }
+    };
+
+    println!("{}", res);
 }
 
 fn encode(data: &str) -> String {
