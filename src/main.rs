@@ -1,6 +1,8 @@
 use clap::Parser;
 use color_space::{Hsv, Rgb};
 
+const PADDING_CHAR: char = ' ';
+
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -33,9 +35,9 @@ fn encode(data: &str) -> String {
     let rgbs = ascii
         .chunks(3)
         .map(|chunk| {
-            let r = chunk.get(0).unwrap_or(&32);
-            let g = chunk.get(1).unwrap_or(&32);
-            let b = chunk.get(2).unwrap_or(&32);
+            let r = chunk.get(0).unwrap_or(&(PADDING_CHAR as u8));
+            let g = chunk.get(1).unwrap_or(&(PADDING_CHAR as u8));
+            let b = chunk.get(2).unwrap_or(&(PADDING_CHAR as u8));
             Rgb::new(*r as f64, *g as f64, *b as f64)
         })
         .collect::<Vec<_>>();
