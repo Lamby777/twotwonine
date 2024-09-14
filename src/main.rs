@@ -1,4 +1,5 @@
 use clap::Parser;
+use clap_stdin::MaybeStdin;
 use color_space::{Hsv, Rgb};
 
 const PADDING_CHAR: u8 = b' ';
@@ -15,7 +16,7 @@ struct Args {
     color_preview: bool,
 
     /// Data to encode/decode
-    data: String,
+    data: MaybeStdin<String>,
 }
 
 fn main() {
