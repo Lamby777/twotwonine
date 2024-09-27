@@ -5,3 +5,11 @@ Super duper secret color-based encoder/decoder that nobody in the entire world w
 ---
 
 Not a serious project.
+
+```
+git clone https://github.com/Lamby777/twotwonine.git
+cd twotwonine
+make && sudo make install
+cd ..
+rm -rf twotwonine
+```
