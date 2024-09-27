@@ -134,4 +134,13 @@ mod tests {
         // be the same string otherwise
         assert_eq!(data, decoded.trim_end());
     }
+
+    #[test]
+    fn encode_carrot() {
+        assert_eq!(encode("🥕"), "0.0 0.0 100.0")
+    }
+    #[test]
+    fn decode_carrot() {
+        assert_eq!(decode("0.0 0.0 100.0"), "🥕")
+    }
 }
