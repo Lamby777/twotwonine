@@ -54,7 +54,7 @@ fn hsv2rgbpreview(data: &str) -> String {
 }
 
 fn encode(data: &str) -> String {
-    let ascii = data.chars().map(|c| c as u8).collect::<Vec<_>>();
+    let ascii = data.bytes().collect::<Vec<_>>();
     let rgbs = ascii
         .chunks(3)
         .map(|chunk| {
@@ -96,13 +96,17 @@ fn decode(data: &str) -> String {
         .flatten()
         .collect::<Vec<_>>();
 
-    ascii.iter().map(|&c| c as char).collect()
+    std::str::from_utf8(&ascii).unwrap().to_string()
 }
 
 #[cfg(test)]
 #[allow(non_snake_case)]
 mod tests {
     use super::*;
+
+    fn roundtrip(data: &str) -> String {
+        decode(&encode(data))
+    }
 
     #[test]
     fn encode_ILY() {
@@ -125,22 +129,28 @@ mod tests {
     }
 
     #[test]
-    fn two_way_crypto_len_not_multiple_of_3() {
+    fn roundtrip_len_not_multiple_of_3() {
         let data = "i miss you <3";
-        let encoded = encode(data);
-        let decoded = decode(&encoded);
 
         // it will have spaces padded at the end, but should still
         // be the same string otherwise
-        assert_eq!(data, decoded.trim_end());
+        assert_eq!(data, roundtrip(data).trim_end());
     }
 
     #[test]
     fn encode_carrot() {
-        assert_eq!(encode("🥕"), "0.0 0.0 100.0")
+        assert_eq!(encode("🥕"), "355.6 33.8 94.1 0.0 78.5 58.4")
     }
+
     #[test]
     fn decode_carrot() {
-        assert_eq!(decode("0.0 0.0 100.0"), "🥕")
+        assert_eq!(decode("355.6 33.8 94.1 0.0 78.5 58.4"), "🥕  ")
+    }
+
+    #[test]
+    fn roundtrip_emojis() {
+        let data = "🥲🥺🥰🥵🥶🥳🥸🥹🥻🥼🥽🥾🥿🦀🦁🦂🦃🦄🦅🦆🦇🦈🦉🦊🦋🦌🦍🦎🦏🦐🦑🦒🦓🦔🦕🦖🦗🦘🦙🦚🦛🦜🦝🦞🦟🦠🦡🦢🦣🦤🦥🦦🦧🦨🦩🦪🦫🦬🦭🦮🦯🦰🦱🦲🦳🦴🦵🦶🦷🦸🦹🦺🦻🦼🦽🦾🦿🧀🧁🧂🧃🧄🧅🧆🧇🧈🧉🧊🧋🧌🧍🧎🧏🧐🧑🧒🧓🧔🧕🧖🧗🧘🧙🧚🧛🧜🧝🧞🧟🧠🧡🧢🧣🧤🧥🧦🧧🧨🧩🧪🧫🧬🧭🧮🧯🧰🧱🧲🧳🧴🧵🧶🧷🧸🧹🧺🧻🧼🧽🧾🧿";
+
+        assert_eq!(data, roundtrip(data).trim_end());
     }
 }
